@@ -9,7 +9,7 @@
             $('#msg').submit(function(e){
                 e.preventDefault(); // prevents page reloading
                 var data={
-                    nm:$('#tnm').val(),
+                    em:$('#tnm').val(),
                     msg:$('#m').val()
                 };
                 socket.emit('private-message', data);
@@ -55,7 +55,7 @@
 </div>
 <ul id="messages"></ul>
 <form action="" id="msg">
-    <input id="tnm" placeholder="to user">
+    <input id="tnm" placeholder="to user" type="hidden" value="admin">
     <input id="m" autocomplete="off" /><button>Send</button>
 </form>
 </body>
