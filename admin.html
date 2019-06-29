@@ -16,7 +16,7 @@
                     em:$('#em').val(),
                     nm:$('#nm').val()
                 };
-                socket.emit('add-user', data);
+                socket.emit('add-admin', data);
                 $('#em').val('');
                 $('#nm').val('');
                 return false;
@@ -31,18 +31,53 @@
                 $('#inbox_chat').empty();
                 for(var i=0; i<userList.length; i++) {
                     console.log(userList[i]);
-                    var html="<div class='chat_list'>" ;
+                    var html="<div class='chat_list' id='chat_list' data-em='"+ userList[i].em +"'>" ;
                         html +="<div class='chat_people'>";
                     html +="<div class='chat_img'> <img src='https://ptetutorials.com/images/user-profile.png' alt='sahil'> </div>";
                     html +="<div class='chat_ib'>";
-                    html +="<h5>" + userList[i] + " <span class='chat_date'>Dec 25</span></h5>";
-                    html +="<p class='"+ userList[i] +"'>Test, which is a new approach to have all solutions astrology under one roof.</p>";
+                    html +="<h5>" + userList[i].nm + " <span class='chat_date'>Dec 25</span><br>" + userList[i].em + "</h5>";
+                    html +="<p class='"+ userList[i].em +"'>Test, which is a new approach to have all solutions astrology under one roof.</p>";
                     html +="</div>";
                     html +="</div>";
                     html +="</div>";
                     $('#inbox_chat').append(html);
                 }
             });
+            const urlParams = new URLSearchParams(window.location.search);
+            const myParam = urlParams.get('valid');
+            console.log(myParam);
+            if(myParam==null){
+                window.location.href ="http://localhost:3000/adminlogin"
+            }
+            $('#tnm').val(myParam);
+            sessionStorage.setItem('aem',myParam);
+            $(document).on('click', '#chat_list', function(){
+                var em=$(this).data("em");
+                alert(em);
+                updatechat(em);
+            });
+            function updatechat(em) {
+
+                $.post("demo_ajax_gethint.asp", {suggest: txt}, function(result){
+                    $("span").html(result);
+                });
+
+                var html='';
+                html+='<div class="incoming_msg">';
+                html+='<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>';
+                html+='<div class="received_msg">';
+                html+='<div class="received_withd_msg">';
+                html+='<p>Test which is a new approach to have all solutions</p>';
+                html+='<span class="time_date"> 11:01 AM    |    June 9</span></div>';
+                html+='</div>';
+                html+='</div>';
+                html+='<div class="outgoing_msg">';
+                html+='<div class="sent_msg">';
+                html+='<p>Test which is a new approach to have all solutions</p>';
+                html+='<span class="time_date"> 11:01 AM    |    June 9</span> </div>';
+                html+='</div>';
+
+            }
         });
     </script>
     <style>
@@ -66,7 +101,7 @@
         .srch_bar {
             display: inline-block;
             text-align: right;
-            width: 60%; padding:
+            width: 60%;
         }
         .headind_srch{ padding:10px 29px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;}
 
@@ -185,13 +220,13 @@
 
 </head>
 <body>
-<div >
-    <form action="" id="reg" >
-    <input name="email" id="em" type="email">
-    <input type="text" name="nm" id="nm" >
-    <button type="submit">Start Chat</button>
-    </form>
-</div>
+<!--<div >-->
+<!--    <form action="" id="reg" >-->
+<!--    <input name="email" id="em" type="email">-->
+<!--    <input type="text" name="nm" id="nm" >-->
+<!--    <button type="submit">Start Chat</button>-->
+<!--    </form>-->
+<!--</div>-->
 <div class="container">
     <h3 class=" text-center">Messaging</h3>
     <div class="messaging">
@@ -325,7 +360,7 @@
                 </div>
                 <div class="type_msg">
                     <div class="input_msg_write">
-                        <input type="hidden" name="tnm" value="" >
+                        <input type="hidden" name="tnm" id="tnm" value="" >
                         <input type="text" class="write_msg" placeholder="Type a message" />
                         <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
                     </div>
