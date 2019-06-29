@@ -143,11 +143,11 @@ io.on('connection', function(socket){
         console .log(data);
         console.log("Sending: " + data.msg + " to " + data.em);
         if (clients[data.em]){
-            io.sockets.connected[clients[data.nm].socket].emit("private-message", data.msg);
+            io.sockets.connected[clients[data.em].socket].emit("private-message", data.msg);
             MongoClient.connect(url, function(err, db) {
                 if (err) throw err;
                 var dbo = db.db("chatdb");
-                var myobj = { name: data.nm, msg: data.msg };
+                var myobj = { name: data.nm, email:data.em, msg: data.msg };
                 dbo.collection("chatDetails").insertOne(myobj, function(err, res) {
                     if (err) throw err;
                     console.log("1 document inserted");

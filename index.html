@@ -9,12 +9,12 @@
             $('#msg').submit(function(e){
                 e.preventDefault(); // prevents page reloading
                 var data={
-                    em:$('#tnm').val(),
+                    tem:$('#tnm').val(),
+                    fem:$('#fnm').val(),
                     msg:$('#m').val()
                 };
                 socket.emit('private-message', data);
                 $('#m').val('');
-            $('#tnm').val('');
                 return false;
             });
             $('#reg').submit(function(e){
