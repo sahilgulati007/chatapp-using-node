@@ -21,7 +21,17 @@
                 $('#nm').val('');
                 return false;
             });
-            socket.on('private-message', function(msg){
+            $('#snd_msg').click(function () {
+                var data={
+                    tem:$('#tem').val(),
+                    fem:$('#fem').val(),
+                    msg:$('#msg').val()
+                };
+                socket.emit('private-message-user', data);
+
+            });
+            socket.on('private-message-user', function(msg){
+                console.log(msg);
                 $('#messages').append($('<li>').text(msg));
             });
             //socket.emit('add-user', data);
@@ -49,17 +59,23 @@
             if(myParam==null){
                 window.location.href ="http://localhost:3000/adminlogin"
             }
-            $('#tnm').val(myParam);
+            var data={
+                em:myParam,
+            };
+            socket.emit('add-admin', data);
+            $('#fem').val(myParam);
             sessionStorage.setItem('aem',myParam);
             $(document).on('click', '#chat_list', function(){
                 var em=$(this).data("em");
                 alert(em);
+                $('#tem').val(em);
                 updatechat(em);
             });
             function updatechat(em) {
 
-                $.post("demo_ajax_gethint.asp", {suggest: txt}, function(result){
-                    $("span").html(result);
+                $.post("/getchat", {em: em}, function(result){
+                    console.log(result);
+                    //$("span").html(result);
                 });
 
                 var html='';
@@ -360,9 +376,10 @@
                 </div>
                 <div class="type_msg">
                     <div class="input_msg_write">
-                        <input type="hidden" name="tnm" id="tnm" value="" >
-                        <input type="text" class="write_msg" placeholder="Type a message" />
-                        <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                        <input type="hidden" name="tem" id="tem" value="" >
+                        <input type="hidden" name="fem" id="fem" value="" >
+                        <input type="text" class="write_msg" id="msg" placeholder="Type a message" />
+                        <button class="msg_send_btn" type="button" id="snd_msg"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
                     </div>
                 </div>
             </div>

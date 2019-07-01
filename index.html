@@ -13,7 +13,7 @@
                     fem:$('#fnm').val(),
                     msg:$('#m').val()
                 };
-                socket.emit('private-message', data);
+                socket.emit('private-message-admin', data);
                 $('#m').val('');
                 return false;
             });
@@ -25,12 +25,20 @@
                 };
                 $('#fnm').val($('#em').val());
                 socket.emit('add-user', data);
+                $.post("/getchat", {em: $('#em').val()}, function(result){
+                    console.log(result);
+                    //$("span").html(result);
+                });
                 $('#em').val('');
                 $('#nm').val('');
                 return false;
             });
             socket.on('private-message', function(msg){
                 $('#messages').append($('<li>').text(msg));
+            });
+            $.post("/getchat", {em: em}, function(result){
+                console.log(result);
+                //$("span").html(result);
             });
         });
     </script>
@@ -56,7 +64,7 @@
 </div>
 <ul id="messages"></ul>
 <form action="" id="msg">
-    <input id="tnm" placeholder="to user" type="hidden" value="test@gm.com">
+    <input id="tnm" placeholder="to user" type="hidden" value="testadmin@gm.com">
     <input id="fnm" type="hidden" value="">
     <input id="m" autocomplete="off" /><button>Send</button>
 </form>

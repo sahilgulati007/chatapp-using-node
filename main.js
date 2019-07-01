@@ -91,6 +91,31 @@ app.post('/sign_up', function(req,res){
     return res.redirect('/adminlogin');
 });
 
+app.post('/getchat', function(req,res){
+    console.log('1'+req.body);
+    var email =req.body.em;
+    var response=res;
+    var data = {
+        "uem":email,
+    };
+    console.log('data');
+    MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("chatdb");
+        //var myobj = { name: data.nm, em:data.em, socket: socket.id };
+        dbo.collection("chatDetails").find(data).toArray( function(err, res) {
+            if (err) throw err;
+            console.log(res);
+            //response=res;
+            response.send(res);
+            //db.close();
+            //return res;
+
+        });
+    });
+    //return res.redirect('/admin');
+});
+
 app.post('/login', function(req,res){
 
     var email =req.body.email;
@@ -139,15 +164,16 @@ io.on('connection', function(socket){
         console.log('message: ' + msg);
         io.emit('chat message', msg);
     });
-    socket.on('private-message', function(data){
+    socket.on('private-message-admin', function(data){
         console .log(data);
-        console.log("Sending: " + data.msg + " to " + data.em);
-        if (clients[data.em]){
-            io.sockets.connected[clients[data.em].socket].emit("private-message", data.msg);
+        console.log("Sending: " + data.msg + " to " + data.tem + " frm " + data.fem);
+        if (admin[data.tem]){
+            //io.sockets.connected[clients[data.em].socket].emit("private-message", data.msg);
+            io.sockets.connected[admin[data.tem].socket].emit("private-message-admin", data.msg);
             MongoClient.connect(url, function(err, db) {
                 if (err) throw err;
                 var dbo = db.db("chatdb");
-                var myobj = { name: data.nm, email:data.em, msg: data.msg };
+                var myobj = { aem: data.tem, uem:data.fem, msg: data.msg, type:'outgoing' };
                 dbo.collection("chatDetails").insertOne(myobj, function(err, res) {
                     if (err) throw err;
                     console.log("1 document inserted");
@@ -155,7 +181,27 @@ io.on('connection', function(socket){
                 });
             });
         } else {
-            console.log("User does not exist: " + data.nm);
+            console.log("User does not exist: " + data.tem);
+        }
+    });
+    socket.on('private-message-user', function(data){
+        console .log(data);
+        console.log("Sending: " + data.msg + " to " + data.tem + " frm " + data.fem);
+        if (clients[data.tem]){
+            //io.sockets.connected[clients[data.em].socket].emit("private-message", data.msg);
+            io.sockets.connected[clients[data.tem].socket].emit("private-message-user", data.msg);
+            MongoClient.connect(url, function(err, db) {
+                if (err) throw err;
+                var dbo = db.db("chatdb");
+                var myobj = { uem: data.tem, aem:data.fem, msg: data.msg, type:'incoming' };
+                dbo.collection("chatDetails").insertOne(myobj, function(err, res) {
+                    if (err) throw err;
+                    console.log("1 document inserted");
+                    db.close();
+                });
+            });
+        } else {
+            console.log("User does not exist: " + data.tem);
         }
     });
     socket.on('add-user', function(data){
@@ -180,15 +226,23 @@ io.on('connection', function(socket){
         console.log(clients);
         updateClients();
     });
+    socket.on('add-admin', function(data){
+        console.log(data);
+        admin[data.em] = {
+            "socket": socket.id,
+            'em':data.em,
+        };
+
+    });
     socket.on('reg-admin', function(data){
         console.log(data);
 
         //users.push(myobj);
-        clients[data.em] = {
+        /*clients[data.em] = {
             "socket": socket.id,
             'em':data.em,
             'nm':data.nm,
-        };
+        };*/
         MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
             if (err) throw err;
             var dbo = db.db("chatdb");
