@@ -72,27 +72,37 @@
                 updatechat(em);
             });
             function updatechat(em) {
+                var res;
 
                 $.post("/getchat", {em: em}, function(result){
                     console.log(result);
+                    res=result;
+                     $('.msg_history').html('');
                     //$("span").html(result);
+                    res.forEach(function(item,index){
+                        console.log(item+" - "+index);
+                        var html='';
+                    if(item.type=="outgoing"){
+                        html+='<div class="incoming_msg">';
+                        html+='<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sahil"> </div>';
+                        html+='<div class="received_msg">';
+                        html+='<div class="received_withd_msg">';
+                        html+='<p>'+ item.msg+'</p>';
+                        html+='<span class="time_date"> 11:01 AM    |    June 9</span></div>';
+                        html+='</div>';
+                        html+='</div>';
+                    }
+                    else{
+                        html+='<div class="outgoing_msg">';
+                        html+='<div class="sent_msg">';
+                        html+='<p>'+ item.msg+'</p>';
+                        html+='<span class="time_date"> 11:01 AM    |    June 9</span> </div>';
+                        html+='</div>';
+                    }
+                    $('.msg_history').append(html);
+
+                    });
                 });
-
-                var html='';
-                html+='<div class="incoming_msg">';
-                html+='<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>';
-                html+='<div class="received_msg">';
-                html+='<div class="received_withd_msg">';
-                html+='<p>Test which is a new approach to have all solutions</p>';
-                html+='<span class="time_date"> 11:01 AM    |    June 9</span></div>';
-                html+='</div>';
-                html+='</div>';
-                html+='<div class="outgoing_msg">';
-                html+='<div class="sent_msg">';
-                html+='<p>Test which is a new approach to have all solutions</p>';
-                html+='<span class="time_date"> 11:01 AM    |    June 9</span> </div>';
-                html+='</div>';
-
             }
         });
     </script>
