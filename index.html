@@ -1,229 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script>
-        $(function () {
-            var socket = io();
-            $('#msg').submit(function(e){
-                e.preventDefault(); // prevents page reloading
-                var data={
-                    tem:$('#tnm').val(),
-                    fem:$('#fnm').val(),
-                    msg:$('#m').val()
-                };
-                socket.emit('private-message-admin', data);
-                $('#m').val('');
-                return false;
-            });
-            $('#reg').submit(function(e){
-                e.preventDefault(); // prevents page reloading
-                var data={
-                    em:$('#em').val(),
-                    nm:$('#nm').val()
-                };
-                $('#fnm').val($('#em').val());
-                socket.emit('add-user', data);
-                $.post("/getchat", {em: $('#em').val()}, function(result){
-                    console.log(result);
-                    //$("span").html(result);
-                    result.forEach(function(item,index){
-                    var html='';
-                    debugger
-                    if(item.type=="outgoing"){
-                        html+="<li >"+item.msg+" </li>";
-                    }
-                    else{
-                        html+="<li >"+item.msg+" </li>";
-                    }
-                    $('#messages').append(html);
-                    });
-                });
-                $('#em').val('');
-                $('#nm').val('');
-                return false;
-            });
-            socket.on('private-message', function(msg){
-                $('#messages').append($('<li>').text(msg));
-            });
-            $.post("/getchat", {em: em}, function(result){
-                console.log(result);
-                //$("span").html(result);
-                debugger
-                
-            });
-        });
-
-        $(function() {
-  var INDEX = 0; 
-  $("#chat-submit").click(function(e) {
-    e.preventDefault();
-    var msg = $("#chat-input").val(); 
-    if(msg.trim() == ''){
-      return false;
-    }
-    generate_message(msg, 'self');
-    var buttons = [
-        {
-          name: 'Existing User',
-          value: 'existing'
-        },
-        {
-          name: 'New User',
-          value: 'new'
-        }
-      ];
-    setTimeout(function() {      
-      generate_message(msg, 'user');  
-    }, 1000)
-    
-  })
-  
-  function generate_message(msg, type) {
-    INDEX++;
-    var str="";
-    str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg "+type+"\">";
-    str += "          <span class=\"msg-avatar\">";
-    str += "            <img src='/img/user.png'>";
-    str += "          <\/span>";
-    str += "          <div class=\"cm-msg-text\">";
-    str += msg;
-    str += "          <\/div>";
-    str += "        <\/div>";
-    $(".chat-logs").append(str);
-    $("#cm-msg-"+INDEX).hide().fadeIn(300);
-    if(type == 'self'){
-     $("#chat-input").val(''); 
-    }    
-    $(".chat-logs").stop().animate({ scrollTop: $(".chat-logs")[0].scrollHeight}, 1000);    
-  }  
-  
-  function generate_button_message(msg, buttons){    
-    /* Buttons should be object array 
-      [
-        {
-          name: 'Existing User',
-          value: 'existing'
-        },
-        {
-          name: 'New User',
-          value: 'new'
-        }
-      ]
-    */
-    INDEX++;
-    var btn_obj = buttons.map(function(button) {
-       return  "              <li class=\"button\"><a href=\"javascript:;\" class=\"btn btn-primary chat-btn\" chat-value=\""+button.value+"\">"+button.name+"<\/a><\/li>";
-    }).join('');
-    var str="";
-    str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg user\">";
-    str += "          <span class=\"msg-avatar\">";
-    str += "            <img src='/img/admin.png'>";
-    str += "          <\/span>";
-    str += "          <div class=\"cm-msg-text\">";
-    str += msg;
-    str += "          <\/div>";
-    str += "          <div class=\"cm-msg-button\">";
-    str += "            <ul>";   
-    str += btn_obj;
-    str += "            <\/ul>";
-    str += "          <\/div>";
-    str += "        <\/div>";
-    $(".chat-logs").append(str);
-    $("#cm-msg-"+INDEX).hide().fadeIn(300);   
-    $(".chat-logs").stop().animate({ scrollTop: $(".chat-logs")[0].scrollHeight}, 1000);
-    $("#chat-input").attr("disabled", true);
-  }
-  
-  $(document).delegate(".chat-btn", "click", function() {
-    var value = $(this).attr("chat-value");
-    var name = $(this).html();
-    $("#chat-input").attr("disabled", false);
-    generate_message(name, 'self');
-  })
-  
-  $("#chat-circle").click(function() {    
-    $("#chat-circle").toggle('scale');
-    $(".chat-box").toggle('scale');
-  })
-  
-  $(".chat-box-toggle").click(function() {
-    $("#chat-circle").toggle('scale');
-    $(".chat-box").toggle('scale');
-  })
-  
-});
-    </script>
-    <title>Socket.IO chat</title>
     <style>
-        /** { margin: 0; padding: 0; box-sizing: border-box; }*/
-        /*body { font: 13px Helvetica, Arial; }*/
-        /*form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }*/
-        /*form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }*/
-        /*form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }*/
-        /*#messages { list-style-type: none; margin: 0; padding: 0; }*/
-        /*#messages li { padding: 5px 10px; }*/
-        /*#messages li:nth-child(odd) { background: #eee; }*/
-    </style>
-</head>
-<body>
-<div class="login">
-    <form action="" id="reg" >
-        <input name="email" id="em" type="email">
-        <input type="text" name="nm" id="nm" >
-        <button type="submit">Start Chat</button>
-    </form>
-</div>
-<ul id="messages"></ul>
-
-<form action="" id="msg">
-    <input id="tnm" placeholder="to user" type="hidden" value="testadmin@gm.com">
-    <input id="fnm" type="hidden" value="">
-    <input id="m" autocomplete="off" /><button>Send</button>
-</form>
-
-------------
-<div id="center-text">
-    <h2>ChatBox UI</h2>
-    <p>Message send and scroll to bottom enabled </p>
-  </div> 
-<div id="body"> 
-  
-<div id="chat-circle" class="btn btn-raised">
-        <div id="chat-overlay"></div>
-            <i class="material-icons">speaker_phone</i>
-    </div>
-  
-  <div class="chat-box">
-    <div class="chat-box-header">
-      ChatBot
-      <span class="chat-box-toggle"><i class="material-icons">close</i></span>
-    </div>
-    <div class="chat-box-body">
-      <div class="chat-box-overlay">   
-      </div>
-      <div class="chat-logs">
-       
-      </div><!--chat-log -->
-    </div>
-    <div class="chat-input">      
-      <form>
-        <input type="text" id="chat-input" placeholder="Send a message..."/>
-      <button type="submit" class="chat-submit" id="chat-submit"><i class="material-icons">send</i></button>
-      </form>      
-    </div>
-  </div>
-  
-  
-  
-  
-</div>
-<script type="text/javascript">
-    
-</script>
-<style>
     html, body {
   background: #efefef;      
   height:100%;  
@@ -321,7 +99,7 @@
 }
 #chat-input {
   background: #f4f7f9;
-  width:100%; 
+  width:80%; 
   position:relative;
   height:47px;  
   padding-top:10px;
@@ -439,6 +217,250 @@
     clear: both;
     margin-bottom: 70px;
 }
+.chat-box-body,.chat-input{
+    display: none;
+}
 </style>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script>
+        $(function () {
+            var INDEX=0;
+            var socket = io();
+            $('#msg').submit(function(e){
+                e.preventDefault(); // prevents page reloading
+
+                var data={
+                    tem:$('#tnm').val(),
+                    fem:$('#fnm').val(),
+                    msg:$('#chat-input').val()
+                };
+                socket.emit('private-message-admin', data);
+                $('#chat-input').val('');
+                return false;
+            });
+            $('#reg').submit(function(e){
+                e.preventDefault(); // prevents page reloading
+                $('.chat-box-body').css('display','block');
+                $('.chat-input').css('display','block');
+                $('.login').css('display','none');
+                var data={
+                    em:$('#em').val(),
+                    nm:$('#nm').val()
+                };
+                $('#fnm').val($('#em').val());
+                sessionStorage.setItem('em',$('#em').val());
+                socket.emit('add-user', data);
+                $.post("/getchat", {em: $('#em').val()}, function(result){
+                    console.log(result);
+                    //$("span").html(result);
+                    
+                    result.forEach(function(item,index){
+                    var html='';
+                    if(item.type=="outgoing"){
+                        html+="<li >"+item.msg+" </li>";
+                        //generate_message(msg, 'self');
+                        var str="";
+                        str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg self\">";
+                        str += "          <span class=\"msg-avatar\">";
+                        str += "            <img src='/img/user.png'>";
+                        str += "          <\/span>";
+                        str += "          <div class=\"cm-msg-text\">";
+                        str += item.msg;
+                        str += "          <\/div>";
+                        str += "        <\/div>";
+                        $(".chat-logs").append(str);
+                    
+                    }
+                    else{
+                        html+="<li >"+item.msg+" </li>";
+                        //generate_message(msg, 'user');
+                         var str="";
+                        str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg user\">";
+                        str += "          <span class=\"msg-avatar\">";
+                        str += "            <img src='/img/admin.png'>";
+                        str += "          <\/span>";
+                        str += "          <div class=\"cm-msg-text\">";
+                        str += item.msg;
+                        str += "          <\/div>";
+                        str += "        <\/div>";
+                        $(".chat-logs").append(str);
+                    }
+                    INDEX++;
+                    $('#messages').append(html);
+
+                    });
+                });
+                $('#em').val('');
+                $('#nm').val('');
+                return false;
+            });
+            socket.on('private-message-user', function(msg){
+                debugger
+                $('#messages').append($('<li>').text(msg));
+                var str="";
+                str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg self\">";
+                str += "          <span class=\"msg-avatar\">";
+                str += "            <img src='/img/user.png'>";
+                str += "          <\/span>";
+                str += "          <div class=\"cm-msg-text\">";
+                str += msg;
+                str += "          <\/div>";
+                str += "        <\/div>";
+                $(".chat-logs").append(str);
+            });
+            socket.on('private-message-admin', function(msg){
+                debugger
+                $('#messages').append($('<li>').text(msg));
+                var str="";
+                str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg user\">";
+                str += "          <span class=\"msg-avatar\">";
+                str += "            <img src='/img/admin.png'>";
+                str += "          <\/span>";
+                str += "          <div class=\"cm-msg-text\">";
+                str += msg;
+                str += "          <\/div>";
+                str += "        <\/div>";
+                $(".chat-logs").append(str);
+            });
+           
+            $("#chat-circle").click(function() {    
+            $("#chat-circle").toggle('scale');
+            $(".chat-box").toggle('scale');
+          });
+          
+          $(".chat-box-toggle").click(function() {
+            $("#chat-circle").toggle('scale');
+            $(".chat-box").toggle('scale');
+          });
+          if(sessionStorage.getItem('em')){
+            $('#fnm').val(sessionStorage.getItem('em'));
+                //sessionStorage.setItem('em',$('#em').val());
+                debugger
+                $('.chat-box-body').css('display','block');
+                $('.chat-input').css('display','block');
+                $('.login').css('display','none');
+                //socket.emit('add-user', data);
+                $.post("/getchat", {em: sessionStorage.getItem('em')}, function(result){
+                    console.log(result);
+                    //$("span").html(result);
+                    //var INDEX=0;
+                    result.forEach(function(item,index){
+                    var html='';
+                    if(item.type=="outgoing"){
+                        html+="<li >"+item.msg+" </li>";
+                        //generate_message(msg, 'self');
+                        var str="";
+                        str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg self\">";
+                        str += "          <span class=\"msg-avatar\">";
+                        str += "            <img src='/img/user.png'>";
+                        str += "          <\/span>";
+                        str += "          <div class=\"cm-msg-text\">";
+                        str += item.msg;
+                        str += "          <\/div>";
+                        str += "        <\/div>";
+                        $(".chat-logs").append(str);
+                    
+                    }
+                    else{
+                        html+="<li >"+item.msg+" </li>";
+                        //generate_message(msg, 'user');
+                         var str="";
+                        str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg user\">";
+                        str += "          <span class=\"msg-avatar\">";
+                        str += "            <img src='/img/admin.png'>";
+                        str += "          <\/span>";
+                        str += "          <div class=\"cm-msg-text\">";
+                        str += item.msg;
+                        str += "          <\/div>";
+                        str += "        <\/div>";
+                        $(".chat-logs").append(str);
+                    }
+                    INDEX++;
+                    $('#messages').append(html);
+
+                    });
+                });
+          }
+        });
+
+       
+    </script>
+    <title>Socket.IO chat</title>
+    <style>
+        /** { margin: 0; padding: 0; box-sizing: border-box; }*/
+        /*body { font: 13px Helvetica, Arial; }*/
+        /*form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }*/
+        /*form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }*/
+        /*form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }*/
+        /*#messages { list-style-type: none; margin: 0; padding: 0; }*/
+        /*#messages li { padding: 5px 10px; }*/
+        /*#messages li:nth-child(odd) { background: #eee; }*/
+    </style>
+</head>
+<body>
+<!-- <div class="login">
+    <form action="" id="reg" >
+        <input name="email" id="em" type="email">
+        <input type="text" name="nm" id="nm" >
+        <button type="submit">Start Chat</button>
+    </form>
+</div> -->
+<ul id="messages"></ul>
+
+<!-- <form action="" id="msg1">
+    <input id="tnm" placeholder="to user" type="hidden" value="testadmin@gm.com">
+    <input id="fnm" type="hidden" value="">
+    <input id="m" autocomplete="off" /><button>Send</button>
+</form> -->
+
+------------
+<div id="center-text">
+    <h2>ChatBox UI</h2>
+    <p>Message send and scroll to bottom enabled </p>
+  </div> 
+<div id="body"> 
+  
+<div id="chat-circle" class="btn btn-raised">
+        <div id="chat-overlay"></div>
+            <i class="material-icons">speaker_phone</i>
+    </div>
+  
+  <div class="chat-box">
+    <div class="chat-box-header">
+      ChatBot
+      <span class="chat-box-toggle"><i class="material-icons">close</i></span>
+    </div>
+    <div class="login">
+        <form action="" id="reg" >
+            <input name="email" id="em" type="email" placeholder="Enter Email" style="width: 80%;margin: 5%;padding: 5%">
+            <input type="text" name="nm" id="nm" placeholder="Enter Name" style="width: 80%;margin: 5%; padding: 5%">
+            <button type="submit" style="width: 90%;padding: 5%;margin: 5%;background: #5A5EB9;color: white;">Start Chat</button>
+        </form>
+    </div>
+    <div class="chat-box-body">
+      <div class="chat-box-overlay">   
+      </div>
+      <div class="chat-logs">
+       
+      </div><!--chat-log -->
+    </div>
+    <div class="chat-input">      
+      <form action="" id="msg">
+        <input id="tnm" placeholder="to user" type="hidden" value="testadmin@gm.com">
+        <input id="fnm" type="hidden" value="">
+        <input type="text" id="chat-input" placeholder="Send a message..."/>
+      <button type="submit" class="chat-submit" id="chat-submit"><i class="material-icons">send</i></button>
+      </form>      
+    </div>
+  </div>
+  
+  
+  
+  
+</div>
+
 </body>
 </html>

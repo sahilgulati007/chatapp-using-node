@@ -167,11 +167,12 @@ io.on('connection', function(socket){
     });
     socket.on('private-message-admin', function(data){
         console .log(data);
-        console.log("Sending: " + data.msg + " to " + data.tem + " frm " + data.fem);
+        
         if (admin[data.tem]){
-            //io.sockets.connected[clients[data.em].socket].emit("private-message", data.msg);
+            console.log("Sending: " + data.msg + " to " + data.tem + " frm " + data.fem);
+            io.sockets.connected[clients[data.fem].socket].emit("private-message-user", data.msg);
             io.sockets.connected[admin[data.tem].socket].emit("private-message-admin", data.msg);
-            MongoClient.connect(url, function(err, db) {
+            MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
                 if (err) throw err;
                 var dbo = db.db("chatdb");
                 var myobj = { aem: data.tem, uem:data.fem, msg: data.msg, type:'outgoing' };
@@ -190,8 +191,9 @@ io.on('connection', function(socket){
         console.log("Sending: " + data.msg + " to " + data.tem + " frm " + data.fem);
         if (clients[data.tem]){
             //io.sockets.connected[clients[data.em].socket].emit("private-message", data.msg);
-            io.sockets.connected[clients[data.tem].socket].emit("private-message-user", data.msg);
-            MongoClient.connect(url, function(err, db) {
+            //io.sockets.connected[clients[data.tem].socket].emit("private-message-user", data.msg);
+            io.sockets.connected[clients[data.tem].socket].emit("private-message-admin", data.msg);
+            MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
                 if (err) throw err;
                 var dbo = db.db("chatdb");
                 var myobj = { uem: data.tem, aem:data.fem, msg: data.msg, type:'incoming' };
