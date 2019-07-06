@@ -160,6 +160,7 @@ io.on('connection', function(socket){
     socket.broadcast.emit('hi');
     socket.on('disconnect', function(){
         console.log('user disconnected');
+        console.log(socket.id);
     });
     socket.on('chat message', function(msg){
         console.log('message: ' + msg);
@@ -171,7 +172,7 @@ io.on('connection', function(socket){
         if (admin[data.tem]){
             console.log("Sending: " + data.msg + " to " + data.tem + " frm " + data.fem);
             io.sockets.connected[clients[data.fem].socket].emit("private-message-user", data.msg);
-            io.sockets.connected[admin[data.tem].socket].emit("private-message-admin", data.msg);
+            io.sockets.connected[admin[data.tem].socket].emit("private-message-admin", data);
             MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
                 if (err) throw err;
                 var dbo = db.db("chatdb");
@@ -191,7 +192,7 @@ io.on('connection', function(socket){
         console.log("Sending: " + data.msg + " to " + data.tem + " frm " + data.fem);
         if (clients[data.tem]){
             //io.sockets.connected[clients[data.em].socket].emit("private-message", data.msg);
-            //io.sockets.connected[clients[data.tem].socket].emit("private-message-user", data.msg);
+            io.sockets.connected[admin[data.fem].socket].emit("private-message-user", data);
             io.sockets.connected[clients[data.tem].socket].emit("private-message-admin", data.msg);
             MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
                 if (err) throw err;

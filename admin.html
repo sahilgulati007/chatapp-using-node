@@ -28,11 +28,38 @@
                     msg:$('#msg').val()
                 };
                 socket.emit('private-message-user', data);
+                $('#msg').val('');
 
             });
             socket.on('private-message-user', function(msg){
+                debugger
                 console.log(msg);
-                $('#messages').append($('<li>').text(msg));
+                //$('#messages').append($('<li>').text(msg));
+                $('.'+msg.tem.replace("@",'').replace(".",'')).html(msg.msg);
+                var html='';
+                html+='<div class="outgoing_msg">';
+                        html+='<div class="sent_msg">';
+                        html+='<p>'+ msg.msg+'</p>';
+                        html+='<span class="time_date"> 11:01 AM    |    June 9</span> </div>';
+                        html+='</div>';
+                        $('.msg_history').append(html);
+            });
+            socket.on('private-message-admin', function(msg){
+                debugger
+                //var str='p.'+msg.tem;
+                //console.log(msg);
+                $('.'+msg.fem.replace("@",'').replace(".",'')).html(msg.msg);
+                var html='';
+                html+='<div class="incoming_msg">';
+                        html+='<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sahil"> </div>';
+                        html+='<div class="received_msg">';
+                        html+='<div class="received_withd_msg">';
+                        html+='<p>'+ msg.msg+'</p>';
+                        html+='<span class="time_date"> 11:01 AM    |    June 9</span></div>';
+                        html+='</div>';
+                        html+='</div>';
+                        $('.msg_history').append(html);
+
             });
             //socket.emit('add-user', data);
             socket.on('updateUsers', function (users){
@@ -46,7 +73,7 @@
                     html +="<div class='chat_img'> <img src='https://ptetutorials.com/images/user-profile.png' alt='sahil'> </div>";
                     html +="<div class='chat_ib'>";
                     html +="<h5>" + userList[i].nm + " <span class='chat_date'>Dec 25</span><br>" + userList[i].em + "</h5>";
-                    html +="<p class='"+ userList[i].em +"'>Test, which is a new approach to have all solutions astrology under one roof.</p>";
+                    html +="<p class='"+ userList[i].em.replace("@",'').replace(".",'') +"'>Test, which is a new approach to have all solutions astrology under one roof.</p>";
                     html +="</div>";
                     html +="</div>";
                     html +="</div>";
@@ -73,6 +100,8 @@
             });
             function updatechat(em) {
                 var res;
+
+                $('.msg_history').data('em',em.replace("@",'').replace(".",''));
 
                 $.post("/getchat", {em: em}, function(result){
                     console.log(result);
@@ -103,6 +132,10 @@
 
                     });
                 });
+                debugger
+                console.log(em);
+                //$('#msg_history').data('em',em.replace("@",'').replace(".",''));
+                $('#msg_history').attr('data-em',em.replace("@",'').replace(".",''));
             }
         });
     </script>
@@ -271,7 +304,7 @@
                     </div>
                 </div>
                 <div class="inbox_chat" id="inbox_chat">
-                    <div class="chat_list active_chat">
+                    <div class="chat_list active_chat">`
                         <div class="chat_people">
                             <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
                             <div class="chat_ib">
@@ -344,7 +377,7 @@
                 </div>
             </div>
             <div class="mesgs">
-                <div class="msg_history">
+                <div class="msg_history" id="msg_history" data-em="">
                     <div class="incoming_msg">
                         <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
                         <div class="received_msg">
