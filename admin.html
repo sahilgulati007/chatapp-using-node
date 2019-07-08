@@ -31,6 +31,15 @@
                 $('#msg').val('');
 
             });
+            $('#msg').keypress(function(event){
+    
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if(keycode == '13'){
+                    alert('You pressed a "enter" key in textbox');  
+                    $('#snd_msg').click();
+                }
+
+            });
             socket.on('private-message-user', function(msg){
                 debugger
                 console.log(msg);

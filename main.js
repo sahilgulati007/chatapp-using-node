@@ -211,13 +211,40 @@ io.on('connection', function(socket){
     socket.on('add-user', function(data){
         console.log(data);
         var myobj={em:data.em, nm:data.nm};
+        //new
+        var data2={ em:data.em };
+        console.log('data2'+JSON.stringify(data2));
+        MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
+            if (err) throw err;
+            console.log('in');
+            var dbo = db.db("chatdb");
+            dbo.collection("chatUsers").find(data2).toArray( function(err, res) {
+                if (err) throw err;
+                console.log(res);
+                console.log('in1');
+                //response=res;
+                /*db.close();
+                console.log('out');*/
+                console.log('len-'+res.length);
+                if(res.length==0){
+                    console.log('in2');
+                    var myobj2 = { name: data.nm, em:data.em, socket: socket.id };
+                    dbo.collection("chatUsers").insertOne(myobj2, function(err, res) {
+                        if (err) throw err;
+                        console.log("1 document inserted");
+                        db.close();
+                    });
+                }
+            });
+        });
+        //end new
         users.push(myobj);
         clients[data.em] = {
             "socket": socket.id,
             'em':data.em,
             'nm':data.nm,
         };
-        MongoClient.connect(url,{ useNewUrlParser: true }, function(err, db) {
+        /*MongoClient.connect(url,{ useNewUrlParser: true }, function(err, db) {
             if (err) throw err;
             var dbo = db.db("chatdb");
             var myobj = { name: data.nm, em:data.em, socket: socket.id };
@@ -226,7 +253,7 @@ io.on('connection', function(socket){
                 console.log("1 document inserted");
                 db.close();
             });
-        });
+        });*/
         console.log(clients);
         updateClients();
     });
@@ -267,6 +294,6 @@ io.on('connection', function(socket){
 
 });
 
-http.listen(3000, function(){
+http.listen(3000, '0.0.0.0', function(){
     console.log('listening on *:3000');
 });
