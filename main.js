@@ -2,6 +2,7 @@
 var bodyParser=require("body-parser");
 var express=require("express");
 var app = express();
+var cors = require('cors');
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var MongoClient = require('mongodb').MongoClient;
@@ -13,6 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+app.use(cors());
 app.use('/img',express.static(__dirname + '/public'));
 MongoClient.connect(url, { useNewUrlParser: true },function(err, db) {
     if (err) throw err;
