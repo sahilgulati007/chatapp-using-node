@@ -3,6 +3,7 @@
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" type="text/css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <!--    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>-->
 <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
@@ -146,6 +147,66 @@
                 //$('#msg_history').data('em',em.replace("@",'').replace(".",''));
                 $('#msg_history').attr('data-em',em.replace("@",'').replace(".",''));
             }
+            $('#upload_img').click(function(){
+                  $('#file_upload').click();
+            });
+            jQuery('#file_upload').change(function(e){
+                var fileName = e.target.files[0].name;
+                //alert('The file "' + fileName +  '" has been selected.');
+                debugger
+                var fd= new FormData();
+                var file = jQuery('#file_upload');
+                var individual_file = file[0].files[0];
+                fd.append('sampleFile',individual_file);
+                //alert($('#tem').val());
+                fd.append('tem',$('#tem').val());
+                fd.append('fem',$('#fem').val());
+                fd.append('from', 'admin');
+                jQuery.ajax({
+                    type: 'POST',
+                    url: '/upload',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function(response){
+                        console.log(response);
+                        if(response=='File uploaded!'){
+                          $('#fnm').val(sessionStorage.getItem('em'));
+                          $('.chat-logs').html('');
+
+                          $.post("/getchat", {em: sessionStorage.getItem('em')}, function(result){
+                            console.log(result);
+                            //$("span").html(result);
+                            //var INDEX=0;
+                            result.forEach(function(item,index){
+                            var html='';
+                            if(item.type=="outgoing"){
+                                html+='<div class="incoming_msg">';
+                                html+='<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sahil"> </div>';
+                                html+='<div class="received_msg">';
+                                html+='<div class="received_withd_msg">';
+                                html+='<p>'+ item.msg+'</p>';
+                                html+='<span class="time_date"> 11:01 AM    |    June 9</span></div>';
+                                html+='</div>';
+                                html+='</div>';
+                            }
+                            else{
+                                html+='<div class="outgoing_msg">';
+                                html+='<div class="sent_msg">';
+                                html+='<p>'+ item.msg+'</p>';
+                                html+='<span class="time_date"> 11:01 AM    |    June 9</span> </div>';
+                                html+='</div>';
+                            }
+                            $('.msg_history').append(html);
+
+                        });
+                    });
+
+                        }
+                        jQuery('#file_upload').val('');
+                    }
+                });
+            });
         });
     </script>
     <style>
@@ -433,6 +494,10 @@
                         <input type="text" class="write_msg" id="msg" placeholder="Type a message" />
                         <button class="msg_send_btn" type="button" id="snd_msg"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
                     </div>
+                </div>
+                <div>
+                  <i class="material-icons" id="upload_img">camera_alt</i>
+                  <input type="file" name="sampleFile" id='file_upload' style="display: none;" />
                 </div>
             </div>
         </div>

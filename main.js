@@ -4,6 +4,7 @@ var express=require("express");
 var app = express();
 var cors = require('cors');
 var http = require('http').createServer(app);
+const fileUpload = require('express-fileupload');
 var io = require('socket.io')(http);
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/chatdb";
@@ -16,6 +17,9 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cors());
 app.use('/img',express.static(__dirname + '/public'));
+//app.use('/images',express.static(__dirname + '/public/images'));
+app.use(fileUpload());
+
 MongoClient.connect(url, { useNewUrlParser: true },function(err, db) {
     if (err) throw err;
     console.log("Database created!");
@@ -49,6 +53,7 @@ MongoClient.connect(url, { useNewUrlParser: true },function(err, db) {
 var clients = {};
 var admin = {};
 var users=[];
+//get page
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
 });
@@ -66,6 +71,73 @@ app.get('/adminlogin', function(req, res){
     res.sendFile(__dirname + '/adminLogin.html');
 
 });
+app.get('/fileupload', function(req, res){
+    res.sendFile(__dirname + '/file.html');
+
+});
+
+//file upload
+app.post('/upload', function(req, res) {
+  if (Object.keys(req.files).length == 0) {
+    console.log('no file uploaded');
+    return res.status(400).send('No files were uploaded.');
+  }
+
+  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+  let sampleFile = req.files.sampleFile;
+  console.log(sampleFile);
+  console.log(Date.now());
+  var filenm=Date.now()+sampleFile.name;
+  var response=res;
+
+  // Use the mv() method to place the file somewhere on your server
+  sampleFile.mv('/sahil/node/public/images/'+filenm, function(err) {
+    if (err){
+        console.log('err in move');
+        console.log(err);
+      return res.status(500).send(err);
+    }
+    console.log(req.headers.host);
+    if(req.body.from == 'admin'){
+        data={
+            aem: req.body.fem,
+            uem: req.body.tem,
+            msg: '<img src="http://'+req.headers.host+'/img/images/'+filenm+'" width="200px" height="200px">',
+            type: 'incoming'
+        };
+    }
+    else{
+        data={
+            aem: req.body.tem,
+            uem: req.body.fem,
+            msg: '<img src="http://'+req.headers.host+'/img/images/'+filenm+'" width="200px" height="200px">',
+            type: 'outgoing'
+        };
+    }
+    MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("chatdb");
+        console.log('data-'+data)
+        //var myobj = { name: data.nm, em:data.em, socket: socket.id };
+        dbo.collection("chatDetails").insertOne(data, function(err, res) {
+            if (err) throw err;
+            console.log("1 document inserted");
+            db.close();
+            //io.sockets.emit('img')
+            io.sockets.connected[clients[data.fem].socket].emit("private-message-user", data.msg);
+            io.sockets.connected[admin[data.tem].socket].emit("private-message-admin", data);
+            response.status(200).send('File uploaded!');
+        });
+    });
+    //emit_img(data);
+    //io.emit("img");
+    // io.sockets.connected[clients[data.fem].socket].emit("private-message-user", data.msg);
+    // io.sockets.connected[admin[data.tem].socket].emit("private-message-admin", data);
+
+    //res.status(200).send('File uploaded!');
+  });
+});
+
 
 app.post('/sign_up', function(req,res){
     var name = req.body.nm;
@@ -90,7 +162,6 @@ app.post('/sign_up', function(req,res){
             db.close();
         });
     });
-
     return res.redirect('/adminlogin');
 });
 
@@ -292,6 +363,11 @@ io.on('connection', function(socket){
     function updateClients() {
         console.log(users);
         io.sockets.emit('updateUsers', users);
+    }
+    function emit_img(data){
+        console.log('in'+data);
+        io.sockets.connected[clients[data.fem].socket].emit("private-message-user", data.msg);
+        io.sockets.connected[admin[data.tem].socket].emit("private-message-admin", data);
     }
 
 });

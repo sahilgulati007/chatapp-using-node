@@ -297,6 +297,9 @@
                 $('#nm').val('');
                 return false;
             });
+            socket.on('img', function(){
+              alert('img');
+            });
             socket.on('private-message-user', function(msg){
                 debugger
                 $('#messages').append($('<li>').text(msg));
@@ -384,6 +387,78 @@
                     });
                 });
           }
+          $('#upload_img').click(function(){
+              $('#file_upload').click();
+          });
+          jQuery('#file_upload').change(function(e){
+            var fileName = e.target.files[0].name;
+            //alert('The file "' + fileName +  '" has been selected.');
+            var fd= new FormData();
+            var file = jQuery('#file_upload');
+            var individual_file = file[0].files[0];
+            fd.append('sampleFile',individual_file);
+            //alert($('#tem').val());
+            fd.append('tem',$('#tnm').val());
+            fd.append('fem',$('#fnm').val());
+            fd.append('from', 'user');
+            jQuery.ajax({
+                type: 'POST',
+                url: '/upload',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function(response){
+                    console.log(response);
+                    if(response=='File uploaded!'){
+                      $('#fnm').val(sessionStorage.getItem('em'));
+                      $('.chat-logs').html('');
+
+                      $.post("/getchat", {em: sessionStorage.getItem('em')}, function(result){
+                    console.log(result);
+                    //$("span").html(result);
+                    //var INDEX=0;
+                    result.forEach(function(item,index){
+                    var html='';
+                    if(item.type=="outgoing"){
+                        html+="<li >"+item.msg+" </li>";
+                        //generate_message(msg, 'self');
+                        var str="";
+                        str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg self\">";
+                        str += "          <span class=\"msg-avatar\">";
+                        str += "            <img src='/img/user.png'>";
+                        str += "          <\/span>";
+                        str += "          <div class=\"cm-msg-text\">";
+                        str += item.msg;
+                        str += "          <\/div>";
+                        str += "        <\/div>";
+                        $(".chat-logs").append(str);
+                    
+                    }
+                    else{
+                        html+="<li >"+item.msg+" </li>";
+                        //generate_message(msg, 'user');
+                         var str="";
+                        str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg user\">";
+                        str += "          <span class=\"msg-avatar\">";
+                        str += "            <img src='/img/admin.png'>";
+                        str += "          <\/span>";
+                        str += "          <div class=\"cm-msg-text\">";
+                        str += item.msg;
+                        str += "          <\/div>";
+                        str += "        <\/div>";
+                        $(".chat-logs").append(str);
+                    }
+                    INDEX++;
+                    $('#messages').append(html);
+
+                    });
+                });
+
+                    }
+                    jQuery('#file_upload').val('');
+                }
+            });
+        });
         });
 
        
@@ -454,6 +529,10 @@
         <input type="text" id="chat-input" placeholder="Send a message..."/>
       <button type="submit" class="chat-submit" id="chat-submit"><i class="material-icons">send</i></button>
       </form>      
+    </div>
+    <div>
+      <i class="material-icons" id="upload_img">camera_alt</i>
+      <input type="file" name="sampleFile" id='file_upload' style="display: none;" />
     </div>
   </div>
   
