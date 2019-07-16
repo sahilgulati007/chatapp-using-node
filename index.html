@@ -393,9 +393,26 @@
           jQuery('#file_upload').change(function(e){
             var fileName = e.target.files[0].name;
             //alert('The file "' + fileName +  '" has been selected.');
+
             var fd= new FormData();
             var file = jQuery('#file_upload');
-            var individual_file = file[0].files[0];
+            if (file[0].files[0]) {
+              var FR= new FileReader();
+              FR.addEventListener("load", function(e) {
+                console.log(e.target.result);
+                var data={
+                    tem:$('#tnm').val(),
+                    fem:$('#fnm').val(),
+                    msg:'<img src="'+e.target.result+'" width="200px" height="200px">'
+                };
+                socket.emit('private-message-admin', data);
+                //document.getElementById("img").src       = e.target.result;
+                //document.getElementById("b64").innerHTML = e.target.result;
+              }); 
+                
+              FR.readAsDataURL( file[0].files[0] );
+            }
+            /*var individual_file = file[0].files[0];
             fd.append('sampleFile',individual_file);
             //alert($('#tem').val());
             fd.append('tem',$('#tnm').val());
@@ -457,8 +474,29 @@
                     }
                     jQuery('#file_upload').val('');
                 }
-            });
+            });*/
         });
+          $('#upload_attach').click(function(){
+              $('#attach_upload').click();
+          });
+          jQuery('#attach_upload').change(function(e){
+            var fd= new FormData();
+            var file = jQuery('#file_upload');
+            var fileReader = new FileReader(), 
+                slice = file.slice(0, 100000); 
+
+            fileReader.readAsArrayBuffer(slice); 
+            fileReader.onload = (evt) => {
+                var arrayBuffer = fileReader.result; 
+                socket.emit('slice upload', { 
+                    name: file.name, 
+                    type: file.type, 
+                    size: file.size, 
+                    data: arrayBuffer 
+                }); 
+            }
+
+            });
         });
 
        
@@ -532,7 +570,9 @@
     </div>
     <div>
       <i class="material-icons" id="upload_img">camera_alt</i>
+      <i class="material-icons" id="upload_attach">attach_file</i>
       <input type="file" name="sampleFile" id='file_upload' style="display: none;" />
+      <input type="file" name="sampleFile" id='attach_upload' style="display: none;" />
     </div>
   </div>
   

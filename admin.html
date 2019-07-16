@@ -156,7 +156,23 @@
                 debugger
                 var fd= new FormData();
                 var file = jQuery('#file_upload');
-                var individual_file = file[0].files[0];
+                if (file[0].files[0]) {
+                  var FR= new FileReader();
+                  FR.addEventListener("load", function(e) {
+                    console.log(e.target.result);
+                    var data={
+                        tem:$('#tnm').val(),
+                        fem:$('#fnm').val(),
+                        msg:'<img src="'+e.target.result+'" width="200px" height="200px">'
+                    };
+                    socket.emit('private-message-user', data);
+                    //document.getElementById("img").src       = e.target.result;
+                    //document.getElementById("b64").innerHTML = e.target.result;
+                  }); 
+                    
+                  FR.readAsDataURL( file[0].files[0] );
+                }
+                /*var individual_file = file[0].files[0];
                 fd.append('sampleFile',individual_file);
                 //alert($('#tem').val());
                 fd.append('tem',$('#tem').val());
@@ -205,7 +221,7 @@
                         }
                         jQuery('#file_upload').val('');
                     }
-                });
+                });*/
             });
         });
     </script>

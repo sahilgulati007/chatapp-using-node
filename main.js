@@ -360,6 +360,37 @@ io.on('connection', function(socket){
         console.log(clients);
         updateClients();
     });
+
+    var files = {}, 
+    struct = { 
+        name: null, 
+        type: null, 
+        size: 0, 
+        data: [], 
+        slice: 0, 
+    };
+
+    socket.on('slice upload', (data) => { 
+        if (!files[data.name]) { 
+            files[data.name] = Object.assign({}, struct, data); 
+            files[data.name].data = []; 
+        }
+        
+        //convert the ArrayBuffer to Buffer 
+        data.data = new Buffer(new Uint8Array(data.data)); 
+        //save the data 
+        files[data.name].data.push(data.data); 
+        files[data.name].slice++;
+        
+        if (files[data.name].slice * 100000 >= files[data.name].size) { 
+            //do something with the data 
+            socket.emit('end upload'); 
+        } else { 
+            socket.emit('request slice upload', { 
+                currentSlice: files[data.name].slice 
+            }); 
+        } 
+    });
     function updateClients() {
         console.log(users);
         io.sockets.emit('updateUsers', users);
