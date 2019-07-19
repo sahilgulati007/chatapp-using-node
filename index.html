@@ -480,23 +480,24 @@
               $('#attach_upload').click();
           });
           jQuery('#attach_upload').change(function(e){
-            var fd= new FormData();
-            var file = jQuery('#file_upload');
+            var file = jQuery('#attach_upload');
+            var fileToRead = file[0].files[0];
             var fileReader = new FileReader(), 
                 slice = file.slice(0, 100000); 
 
-            fileReader.readAsArrayBuffer(slice); 
+            //fileReader.readAsArrayBuffer(slice); 
+            fileReader.readAsText(fileToRead);
             fileReader.onload = (evt) => {
                 var arrayBuffer = fileReader.result; 
                 socket.emit('slice upload', { 
                     name: file.name, 
                     type: file.type, 
                     size: file.size, 
-                    data: arrayBuffer 
+                    data: reader.result 
                 }); 
             }
 
-            });
+          });
         });
 
        
